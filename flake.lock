@@ -2,16 +2,16 @@
   "nodes": {
     "nixpkgs": {
       "locked": {
-        "lastModified": 1698413598,
-        "narHash": "sha256-c0y6nSgm6X3nT+KFtvLlpudrXpcFZqN0KHflKdutwLM=",
-        "owner": "wineee",
+        "lastModified": 1700186122,
+        "narHash": "sha256-luD9cHqa9pIGb9/bO1Y1L+g+q5OKeh3SeMwfaf5azTo=",
+        "owner": "a-n-n-a-l-e-e",
         "repo": "nixpkgs",
-        "rev": "70e7dda2cde249ddc026da12660b328c310b08bc",
+        "rev": "195bf2cb4d9d17d3f621936279faeefa462f0083",
         "type": "github"
       },
       "original": {
-        "owner": "wineee",
-        "ref": "deepin-23",
+        "owner": "a-n-n-a-l-e-e",
+        "ref": "deliantra-server",
         "repo": "nixpkgs",
         "type": "github"
       }
