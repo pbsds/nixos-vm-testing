@@ -2,7 +2,8 @@
   #inputs.nixpkgs.url = "github:nixos/nixpkgs/nixos-23.05";
   #inputs.nixpkgs.url = "github:nixos/nixpkgs/nixos-unstable";
   #inputs.nixpkgs.url = "github:wineee/nixpkgs/deepin-23";
-  inputs.nixpkgs.url = "github:a-n-n-a-l-e-e/nixpkgs/deliantra-server";
+  #inputs.nixpkgs.url = "github:a-n-n-a-l-e-e/nixpkgs/deliantra-server";
+  inputs.nixpkgs.url = "github:SamLukeYes/nixpkgs/qadwaitadecorations";
 
   outputs = {
     self,
@@ -23,6 +24,7 @@
 
     packages = forAllSystems ({ pkgs, ...}: {
       deliantra-vm = self.nixosConfigurations.deliantra-vm.config.system.build.vm;
+      gnome-vm = self.nixosConfigurations.gnome-vm.config.system.build.vm;
       deepin-vm = self.nixosConfigurations.deepin-vm.config.system.build.vm;
       nixos-rebuild-nom = with pkgs; writeScriptBin "nixos-rebuild" ''
         exec ${lib.getExe nixos-rebuild} "$@" |& ${lib.getExe nix-output-monitor}
@@ -52,7 +54,7 @@
 
             imports = [ "${nixpkgs}/nixos/modules/virtualisation/qemu-vm.nix" ];
             virtualisation = {
-              qemu.options = [ "-device intel-hda -device hda-duplex" ];
+              qemu.options = [ "-device intel-hda -device hda-duplex -vga virtio" ];
               cores = 4;
               memorySize = 8 * 1024;
               diskSize = 16 * 1024;
@@ -71,19 +73,39 @@
       deliantra-vm = mkNixos [({ config, pkgs, lib, ... }: {
         services.deliantra-server.enable = true;
       })];
+      gnome-vm = mkNixos [({ config, pkgs, lib, ... }: {
+        services.xserver = {
+          enable = true;
+          displayManager.autoLogin.enable = false;
+          displayManager.autoLogin.user = "test";
+          displayManager.gdm.enable = true;
+          desktopManager.gnome.enable = true;
+        };
+        services.dbus.packages = with pkgs; [ gnome2.GConf ];
+        imports = [
+          # https://github.com/NixOS/nixpkgs/pull/264774
+          /** /
+          {
+            qt.enable = true;
+            #qt.waylandDecoration = "adwaita";
+            environment.variables.QT_WAYLAND_DECORATION="adwaita";
+            environment.systemPackages = with pkgs; [ qadwaitadecorations-qt6 qt6.qtsvg obs-studio shotcut ];
+            environment.systemPackages = with pkgs; [ obs-studio shotcut ];
+          }
+          /**/
+        ];
+      })];
       deepin-vm = mkNixos [({ config, pkgs, lib, ... }: {
         services.xserver = {
           enable = true;
-          displayManager = {
-            lightdm.enable = true;
-            autoLogin.enable = false;
-            autoLogin.user = "test";
-          };
+          displayManager.lightdm.enable = true;
+          displayManager.autoLogin.enable = false;
+          displayManager.autoLogin.user = "test";
           desktopManager.deepin.enable = true;
           #desktopManager.deepin.full = false;
         };
+        # https://github.com/NixOS/nixpkgs/pull/257400
         environment.systemPackages = with pkgs; [
-
           deepin.deepin-album
           deepin.deepin-calculator
           deepin.deepin-camera

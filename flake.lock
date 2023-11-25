@@ -2,16 +2,16 @@
   "nodes": {
     "nixpkgs": {
       "locked": {
-        "lastModified": 1700186122,
-        "narHash": "sha256-luD9cHqa9pIGb9/bO1Y1L+g+q5OKeh3SeMwfaf5azTo=",
-        "owner": "a-n-n-a-l-e-e",
+        "lastModified": 1700903605,
+        "narHash": "sha256-x54B4oneVTB7d+8L+QysLfjueAn6M3ukvx0WsJmrUu0=",
+        "owner": "SamLukeYes",
         "repo": "nixpkgs",
-        "rev": "195bf2cb4d9d17d3f621936279faeefa462f0083",
+        "rev": "fe795f0266a80c09124b63e1be55f3f0a4b5880f",
         "type": "github"
       },
       "original": {
-        "owner": "a-n-n-a-l-e-e",
-        "ref": "deliantra-server",
+        "owner": "SamLukeYes",
+        "ref": "qadwaitadecorations",
         "repo": "nixpkgs",
         "type": "github"
       }
