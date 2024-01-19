@@ -1,9 +1,11 @@
 {
-  #inputs.nixpkgs.url = "github:nixos/nixpkgs/nixos-23.05";
-  #inputs.nixpkgs.url = "github:nixos/nixpkgs/nixos-unstable";
-  #inputs.nixpkgs.url = "github:wineee/nixpkgs/deepin-23";
+  #inputs.nixpkgs.url = "github:nixos/nixpkgs/nixos-23.11";
+  inputs.nixpkgs.url = "github:nixos/nixpkgs/refs/pull/279511/head"; # nixos/tigerbeetle: init module
+  #inputs.nixpkgs.url = "github:nixos/nixpkgs/refs/pull/279511/merge"; # nixos/tigerbeetle: init module
+  #inputs.nixpkgs.url = "github:SamLukeYes/nixpkgs/qadwaitadecorations";
   #inputs.nixpkgs.url = "github:a-n-n-a-l-e-e/nixpkgs/deliantra-server";
-  inputs.nixpkgs.url = "github:SamLukeYes/nixpkgs/qadwaitadecorations";
+  #inputs.nixpkgs.url = "github:wineee/nixpkgs/deepin-23";
+  #inputs.nixpkgs.url = "github:nixos/nixpkgs/nixos-unstable";
 
   outputs = {
     self,
@@ -22,14 +24,18 @@
   in {
     inherit inputs;
 
-    packages = forAllSystems ({ pkgs, ...}: {
+    packages = forAllSystems ({ pkgs, lib, ...}: {
+      tigerbeetle-vm = self.nixosConfigurations.tigerbeetle-vm.config.system.build.vm;
       deliantra-vm = self.nixosConfigurations.deliantra-vm.config.system.build.vm;
       gnome-vm = self.nixosConfigurations.gnome-vm.config.system.build.vm;
       deepin-vm = self.nixosConfigurations.deepin-vm.config.system.build.vm;
+
       nixos-rebuild-nom = with pkgs; writeScriptBin "nixos-rebuild" ''
         exec ${lib.getExe nixos-rebuild} "$@" |& ${lib.getExe nix-output-monitor}
       '';
-    });
+    } // (lib.flip lib.mapAttrs' self.nixosConfigurations (name: value:
+      lib.nameValuePair name value.config.system.build.vm
+    )));
 
     nixosConfigurations = let
       mkNixos = extraModules: nixpkgs.lib.nixosSystem {
@@ -43,7 +49,9 @@
             i18n.defaultLocale      = "en_US.utf8";
             time.timeZone           = "Europe/Oslo";
             fonts.packages = with pkgs; [ noto-fonts noto-fonts-cjk noto-fonts-emoji ];
+            networking.firewall.enable = false;
 
+            users.users.root.password = "hunter2";
             users.users.test = {
               name = "Testy McTesticle";
               uid = 1000;
@@ -70,6 +78,10 @@
         ] ++ extraModules;
       };
     in {
+      tigerbeetle-vm = mkNixos [({ config, pkgs, lib, ... }: {
+        services.tigerbeetle.enable = true;
+        services.tigerbeetle.addresses = [ "0.0.0.0:8080" ];
+      })];
       deliantra-vm = mkNixos [({ config, pkgs, lib, ... }: {
         services.deliantra-server.enable = true;
       })];
