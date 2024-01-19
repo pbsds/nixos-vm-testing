@@ -1,6 +1,8 @@
 {
+  #inputs.nixpkgs.url = "github:nixos/nixpkgs/master";
   #inputs.nixpkgs.url = "github:nixos/nixpkgs/nixos-23.11";
-  inputs.nixpkgs.url = "github:nixos/nixpkgs/refs/pull/279511/head"; # nixos/tigerbeetle: init module
+  inputs.nixpkgs.url = "github:nixos/nixpkgs/refs/pull/276547/head"; # nixos/pyload: init module #276547
+  #inputs.nixpkgs.url = "github:nixos/nixpkgs/refs/pull/267327/merge"; # nixos/firebird: fix coerce error
   #inputs.nixpkgs.url = "github:nixos/nixpkgs/refs/pull/279511/merge"; # nixos/tigerbeetle: init module
   #inputs.nixpkgs.url = "github:SamLukeYes/nixpkgs/qadwaitadecorations";
   #inputs.nixpkgs.url = "github:a-n-n-a-l-e-e/nixpkgs/deliantra-server";
@@ -25,11 +27,6 @@
     inherit inputs;
 
     packages = forAllSystems ({ pkgs, lib, ...}: {
-      tigerbeetle-vm = self.nixosConfigurations.tigerbeetle-vm.config.system.build.vm;
-      deliantra-vm = self.nixosConfigurations.deliantra-vm.config.system.build.vm;
-      gnome-vm = self.nixosConfigurations.gnome-vm.config.system.build.vm;
-      deepin-vm = self.nixosConfigurations.deepin-vm.config.system.build.vm;
-
       nixos-rebuild-nom = with pkgs; writeScriptBin "nixos-rebuild" ''
         exec ${lib.getExe nixos-rebuild} "$@" |& ${lib.getExe nix-output-monitor}
       '';
@@ -78,11 +75,19 @@
         ] ++ extraModules;
       };
     in {
-      tigerbeetle-vm = mkNixos [({ config, pkgs, lib, ... }: {
+      pyload-vm = mkNixos [({
+        services.pyload.enable = true;
+        services.pyload.listenAddress = "0.0.0.0";
+        services.pyload.port = 8080;
+      })];
+      firebird-vm = mkNixos [({
+        services.firebird.enable = true; # check if it builds
+      })];
+      tigerbeetle-vm = mkNixos [({
         services.tigerbeetle.enable = true;
         services.tigerbeetle.addresses = [ "0.0.0.0:8080" ];
       })];
-      deliantra-vm = mkNixos [({ config, pkgs, lib, ... }: {
+      deliantra-vm = mkNixos [({
         services.deliantra-server.enable = true;
       })];
       gnome-vm = mkNixos [({ config, pkgs, lib, ... }: {
