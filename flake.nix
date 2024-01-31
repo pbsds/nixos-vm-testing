@@ -1,13 +1,17 @@
 {
   #inputs.nixpkgs.url = "github:nixos/nixpkgs/master";
+  #inputs.nixpkgs.url = "github:nixos/nixpkgs/staging";
+  #inputs.nixpkgs.url = "github:nixos/nixpkgs/staging-next";
+  #inputs.nixpkgs.url = "github:nixos/nixpkgs/nixos-unstable";
   #inputs.nixpkgs.url = "github:nixos/nixpkgs/nixos-23.11";
-  inputs.nixpkgs.url = "github:nixos/nixpkgs/refs/pull/276547/head"; # nixos/pyload: init module #276547
+  inputs.nixpkgs.url = "github:nixos/nixpkgs/refs/pull/285314/merge";
+  #inputs.nixpkgs.url = "github:nixos/nixpkgs/refs/pull/276547/head"; # nixos/pyload: init module #276547
   #inputs.nixpkgs.url = "github:nixos/nixpkgs/refs/pull/267327/merge"; # nixos/firebird: fix coerce error
+  #inputs.nixpkgs.url = "github:nixos/nixpkgs/refs/pull/261378/head"; # auto-epp: init
   #inputs.nixpkgs.url = "github:nixos/nixpkgs/refs/pull/279511/merge"; # nixos/tigerbeetle: init module
   #inputs.nixpkgs.url = "github:SamLukeYes/nixpkgs/qadwaitadecorations";
   #inputs.nixpkgs.url = "github:a-n-n-a-l-e-e/nixpkgs/deliantra-server";
   #inputs.nixpkgs.url = "github:wineee/nixpkgs/deepin-23";
-  #inputs.nixpkgs.url = "github:nixos/nixpkgs/nixos-unstable";
 
   outputs = {
     self,
@@ -46,7 +50,7 @@
             i18n.defaultLocale      = "en_US.utf8";
             time.timeZone           = "Europe/Oslo";
             fonts.packages = with pkgs; [ noto-fonts noto-fonts-cjk noto-fonts-emoji ];
-            networking.firewall.enable = false;
+            networking.firewall.allowedTCPPorts = [ 80 ];
 
             users.users.root.password = "hunter2";
             users.users.test = {
@@ -70,25 +74,44 @@
             environment.systemPackages = with pkgs; [
               pkgs.cage
               pkgs.firefox
+              pkgs.fd
+              pkgs.ripgrep
+              pkgs.bat
             ];
           })
         ] ++ extraModules;
       };
     in {
+      ttyd-login-vm = mkNixos [({ config, pkgs, lib, ... }: {
+        services.ttyd.enable = true;
+        services.ttyd.interface = "0.0.0.0";
+        services.ttyd.port = 80;
+        services.ttyd.writeable = true;
+      })];
+      ttyd-htop-vm = mkNixos [({ config, pkgs, lib, ... }: {
+        services.ttyd.enable = true;
+        services.ttyd.interface = "0.0.0.0";
+        services.ttyd.port = 80;
+        services.ttyd.writeable = false;
+        services.ttyd.entrypoint = [ (lib.getExe pkgs.htop) ];
+      })];
       pyload-vm = mkNixos [({
         services.pyload.enable = true;
         services.pyload.listenAddress = "0.0.0.0";
-        services.pyload.port = 8080;
+        services.pyload.port = 80;
       })];
       firebird-vm = mkNixos [({
         services.firebird.enable = true; # check if it builds
       })];
       tigerbeetle-vm = mkNixos [({
         services.tigerbeetle.enable = true;
-        services.tigerbeetle.addresses = [ "0.0.0.0:8080" ];
+        services.tigerbeetle.addresses = [ "0.0.0.0:80" ];
       })];
-      deliantra-vm = mkNixos [({
+      deliantra-vm = mkNixos [({ config, pkgs, lib, ... }: {
         services.deliantra-server.enable = true;
+      })];
+      auto-epp-vm = mkNixos [({ config, pkgs, lib, ... }: {
+        services.auto-epp.enable = true;
       })];
       gnome-vm = mkNixos [({ config, pkgs, lib, ... }: {
         services.xserver = {
