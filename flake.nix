@@ -3,15 +3,9 @@
   #inputs.nixpkgs.url = "github:nixos/nixpkgs/staging";
   #inputs.nixpkgs.url = "github:nixos/nixpkgs/staging-next";
   #inputs.nixpkgs.url = "github:nixos/nixpkgs/nixos-unstable";
+  #inputs.nixpkgs.url = "github:nixos/nixpkgs/nixos-24.05";
   #inputs.nixpkgs.url = "github:nixos/nixpkgs/nixos-23.11";
-  inputs.nixpkgs.url = "github:nixos/nixpkgs/refs/pull/285314/merge";
-  #inputs.nixpkgs.url = "github:nixos/nixpkgs/refs/pull/276547/head"; # nixos/pyload: init module #276547
-  #inputs.nixpkgs.url = "github:nixos/nixpkgs/refs/pull/267327/merge"; # nixos/firebird: fix coerce error
-  #inputs.nixpkgs.url = "github:nixos/nixpkgs/refs/pull/261378/head"; # auto-epp: init
-  #inputs.nixpkgs.url = "github:nixos/nixpkgs/refs/pull/279511/merge"; # nixos/tigerbeetle: init module
-  #inputs.nixpkgs.url = "github:SamLukeYes/nixpkgs/qadwaitadecorations";
-  #inputs.nixpkgs.url = "github:a-n-n-a-l-e-e/nixpkgs/deliantra-server";
-  #inputs.nixpkgs.url = "github:wineee/nixpkgs/deepin-23";
+  inputs.nixpkgs.url = "github:nixos/nixpkgs/refs/pull/318543/merge";
 
   outputs = {
     self,
@@ -72,8 +66,10 @@
             };
 
             environment.systemPackages = with pkgs; [
+              pkgs.tmux
               pkgs.cage
               pkgs.firefox
+              pkgs.htop
               pkgs.fd
               pkgs.ripgrep
               pkgs.bat
@@ -82,6 +78,10 @@
         ] ++ extraModules;
       };
     in {
+      terraria-vm = mkNixos [({ config, pkgs, lib, ... }: {
+        nixpkgs.config.allowUnfreePredicate = x: true;
+        services.terraria.enable = true;
+      })];
       ttyd-login-vm = mkNixos [({ config, pkgs, lib, ... }: {
         services.ttyd.enable = true;
         services.ttyd.interface = "0.0.0.0";
