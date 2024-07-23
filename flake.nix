@@ -5,7 +5,7 @@
   #inputs.nixpkgs.url = "github:nixos/nixpkgs/nixos-unstable";
   #inputs.nixpkgs.url = "github:nixos/nixpkgs/nixos-24.05";
   #inputs.nixpkgs.url = "github:nixos/nixpkgs/nixos-23.11";
-  inputs.nixpkgs.url = "github:nixos/nixpkgs/refs/pull/318543/merge";
+  inputs.nixpkgs.url = "github:nixos/nixpkgs/refs/pull/327184/merge";
 
   outputs = {
     self,
@@ -44,7 +44,7 @@
             i18n.defaultLocale      = "en_US.utf8";
             time.timeZone           = "Europe/Oslo";
             fonts.packages = with pkgs; [ noto-fonts noto-fonts-cjk noto-fonts-emoji ];
-            networking.firewall.allowedTCPPorts = [ 80 ];
+            networking.firewall.allowedTCPPorts = [ 8080 ];
 
             users.users.root.password = "hunter2";
             users.users.test = {
@@ -78,6 +78,12 @@
         ] ++ extraModules;
       };
     in {
+      goatcounter-vm = mkNixos [({ config, pkgs, lib, ... }: {
+        services.goatcounter.enable = true;
+        services.goatcounter.address = "0.0.0.0";
+        services.goatcounter.port = 8080;
+        services.goatcounter.proxy = true;
+      })];
       terraria-vm = mkNixos [({ config, pkgs, lib, ... }: {
         nixpkgs.config.allowUnfreePredicate = x: true;
         services.terraria.enable = true;
@@ -85,20 +91,20 @@
       ttyd-login-vm = mkNixos [({ config, pkgs, lib, ... }: {
         services.ttyd.enable = true;
         services.ttyd.interface = "0.0.0.0";
-        services.ttyd.port = 80;
+        services.ttyd.port = 8080;
         services.ttyd.writeable = true;
       })];
       ttyd-htop-vm = mkNixos [({ config, pkgs, lib, ... }: {
         services.ttyd.enable = true;
         services.ttyd.interface = "0.0.0.0";
-        services.ttyd.port = 80;
+        services.ttyd.port = 8080;
         services.ttyd.writeable = false;
         services.ttyd.entrypoint = [ (lib.getExe pkgs.htop) ];
       })];
       pyload-vm = mkNixos [({
         services.pyload.enable = true;
         services.pyload.listenAddress = "0.0.0.0";
-        services.pyload.port = 80;
+        services.pyload.port = 8080;
       })];
       firebird-vm = mkNixos [({
         services.firebird.enable = true; # check if it builds
