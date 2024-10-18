@@ -5,7 +5,7 @@
   #inputs.nixpkgs.url = "github:nixos/nixpkgs/nixos-unstable";
   #inputs.nixpkgs.url = "github:nixos/nixpkgs/nixos-24.05";
   #inputs.nixpkgs.url = "github:nixos/nixpkgs/nixos-23.11";
-  inputs.nixpkgs.url = "github:nixos/nixpkgs/refs/pull/327184/merge";
+  inputs.nixpkgs.url = "github:nixos/nixpkgs/refs/pull/348854/merge";
 
   outputs = {
     self,
@@ -78,6 +78,10 @@
         ] ++ extraModules;
       };
     in {
+      resilio-vm = mkNixos [({ config, pkgs, lib, ... }: {
+        nixpkgs.config.allowUnfreePredicate = x: true;
+        services.resilio.enable = true;
+      })];
       goatcounter-vm = mkNixos [({ config, pkgs, lib, ... }: {
         services.goatcounter.enable = true;
         services.goatcounter.address = "0.0.0.0";
