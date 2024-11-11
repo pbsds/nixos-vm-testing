@@ -5,7 +5,7 @@
   #inputs.nixpkgs.url = "github:nixos/nixpkgs/nixos-unstable";
   #inputs.nixpkgs.url = "github:nixos/nixpkgs/nixos-24.05";
   #inputs.nixpkgs.url = "github:nixos/nixpkgs/nixos-23.11";
-  inputs.nixpkgs.url = "github:nixos/nixpkgs/refs/pull/348854/merge";
+  inputs.nixpkgs.url = "github:nixos/nixpkgs/refs/pull/355279/merge";
 
   outputs = {
     self,
@@ -39,11 +39,11 @@
           ({ config, pkgs, lib, ... }: {
             system.stateVersion = lib.trivial.release;
             nix.settings.experimental-features = [ "nix-command" "flakes" ];
-            console.keyMap          = "no";
-            services.xserver.layout = "no";
-            i18n.defaultLocale      = "en_US.utf8";
-            time.timeZone           = "Europe/Oslo";
-            fonts.packages = with pkgs; [ noto-fonts noto-fonts-cjk noto-fonts-emoji ];
+            console.keyMap = "no";
+            services.xserver.xkb.layout = "no";
+            i18n.defaultLocale = "en_US.utf8";
+            time.timeZone = "Europe/Oslo";
+            fonts.packages = with pkgs; [ noto-fonts noto-fonts-cjk-sans noto-fonts-emoji ];
             networking.firewall.allowedTCPPorts = [ 8080 ];
 
             users.users.root.password = "hunter2";
@@ -78,6 +78,26 @@
         ] ++ extraModules;
       };
     in {
+      invidious-vm = mkNixos [({ config, pkgs, lib, ... }: {
+        services.invidious = {
+          enable = true;
+          domain = "invidious.example.com";
+          address = "0.0.0.0";
+          port = 8080;
+          settings = {
+            external_port = 8080;
+            https_only = false;
+            statistics_enabled = false; # api endpoint required for public instances
+            registration_enabled = true;
+            login_enabled = true;
+            banner = "Testy McTesticles";
+            default_user_preferences = {
+              feed_menu = ["Trending" "Subscriptions" "Playlists"];
+              default_home = "Trending";
+            };
+          };
+        };
+      })];
       resilio-vm = mkNixos [({ config, pkgs, lib, ... }: {
         nixpkgs.config.allowUnfreePredicate = x: true;
         services.resilio.enable = true;
